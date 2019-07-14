@@ -3,6 +3,7 @@
 
 from toy_clustering_datasets import *
 from pylab import plot, grid, show
+import math
 
 
 def mean_shift(S,r):
@@ -10,17 +11,42 @@ def mean_shift(S,r):
     C = S
     while P != C:
         P = C
-        C = sorted(set([centroid([q for q in C if distance(p,q)<r]) for p in C]))
+        C = sorted(set([centroid(p, r, [q for q in C if distance(p,q)<r], 1) for p in C]))
     return C
 
 def distance(p,q):
     return hypot(p[0]-q[0],p[1]-q[1])
 
-def centroid(S):
-    X = [p[0] for p in S]
-    Y = [p[1] for p in S]
-    return (sum(X)/len(X), sum(Y)/len(Y))
+# https://mccormickml.com/2013/08/15/the-gaussian-kernel/
+'''
+Given two D dimensional vectors x_i and x_j. The Gaussian kernel is defined as
+k(x_i,x_j)=exp(-|| x_i - x_j ||^2 / sigma^2)
+where ||x_i - x_j|| is the Euclidean distance given by
+||x_i - x_j||=((x_i1-x_j1)^2 + (x_i2-x_j2)^2 + ... + (x_iD-x_jD)^2)^.5
+and sigma^2 is the bandwidth of the kernel.
+Note that the Gaussian kernel is a measure of similarity between x_i and x_j.
+It evalues to 1 if the x_i and x_j are identical, and approaches 0 as x_i and x_j move further apart.
+The function relies on the dist function in the stats package for an initial estimate of the euclidean distance. 
+'''
+def gaussian_kernel(p, q, r):
+    return math.exp(-distance(p, q)**2/r**2)
 
+def calc_gaussian(p, S, h):
+    return sum([gaussian_kernel(p, q, h) for q in S])
+
+def centroid(p, r, S, kernelId):
+    X = [s[0] for s in S]
+    Y = [s[1] for s in S]
+    euclidian_distance = (sum(X)/len(X), sum(Y)/len(Y))
+    gau=calc_gaussian(p, S, r)
+    print (S, p, euclidian_distance, gau)
+    #input()
+    if kernelId==0:
+        return euclidian_distance
+
+    return euclidian_distance
+    
+ 
 def get_data_sample(id):
     S=[]
     L=[]
@@ -52,7 +78,7 @@ def get_data_sample(id):
 def t0():
     S, L = get_data_sample(0)
     show_clusters('Original clusters',S,L)
-    C = mean_shift(S,1)
+    C = mean_shift(S, 2.1)
     title('Centroids found by Mean-Shift')
     for i,p in enumerate(S): scatter([p[0]],[p[1]],color=colour(L[i]),marker=marker(L[i]),s=25)
     for c in C: scatter([c[0]],[c[1]],color='k',marker='*',s=150)
@@ -71,6 +97,5 @@ def t1():
     show()
 
 
-
 t0()
-t1()
+#t1()
