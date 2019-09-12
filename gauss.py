@@ -26,7 +26,7 @@ is the Euclidean distance given by
 def euclidian_distance(p, q):
     return math.hypot(p[0]-q[0], p[1]-q[1])
 
-'''
+'''e
 The Gaussian kernel is defined as
 k(x_i,x_j)=exp(-|| x_i - x_j ||^2 / sigma^2)
 '''
