@@ -5,13 +5,25 @@ from toy_clustering_datasets import *
 from pylab import plot, grid, show
 import math
 
+# Opcoes para facilitar os testes
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-b", "--bandwidth", dest="bandwidth", help="define bandwidth: -b 2.1", metavar="BANDWIDTH", default="2.1")
+parser.add_option("-k", "--kernel", dest="kernel",       help="choose kernel: -k [0:euclidian,1:gaussian]", metavar="KERNEL", default="1")
+parser.add_option("-d", "--data", dest="data", help="choose data: [0,1]", metavar="DATA", default="0")
+(opt, args) = parser.parse_args()
+KERNEL = int(opt.kernel)
+DATA = int(opt.data)
+BANDWIDTH = float(opt.bandwidth)
+
+#python mean_shift.py -d 0 -b 2.1 -k 0
 
 def mean_shift(S,r):
     P = []
     C = S
     while P != C:
         P = C
-        C = sorted(set([centroid(p, r, [q for q in C if distance(p,q)<r], 1) for p in C]))
+        C = sorted(set([centroid(p, r, [q for q in C if distance(p,q)<r], KERNEL) for p in C]))
     return C
 
 def distance(p,q):
@@ -51,13 +63,15 @@ def gaussian_centroid_by_axis(p, axis_data, h):
 
 
 def centroid(p, r, S, kernelId):
+    m = 0
     X = [s[0] for s in S]
     Y = [s[1] for s in S]
-    euclidian_distance = (sum(X)/len(X), sum(Y)/len(Y))
-    gau=(gaussian_centroid_by_axis(p[0], X, r), gaussian_centroid_by_axis(p[1], Y, r))
-    print (S, p, euclidian_distance, gau)
 
-    return gau
+    if (kernelId==0):
+        m = (sum(X)/len(X), sum(Y)/len(Y)) # Calcula a media euclidiana para cada eixos
+    else:
+        m=(gaussian_centroid_by_axis(p[0], X, r), gaussian_centroid_by_axis(p[1], Y, r)) # calcula a distancia gaussiana para cada eixo
+    return m
     
  
 def get_data_sample(id):
@@ -69,7 +83,7 @@ def get_data_sample(id):
              (4,1), (5,3), (6,1)         # cluster 2
             ]
         L = [0, 0, 0,
-             1, 1, 1, 1,
+             1, 1, 1, 1, 
              2, 2, 2]
 
     elif id==1:
@@ -88,27 +102,15 @@ def get_data_sample(id):
     return S,L
 
 
-def t0():
-    S, L = get_data_sample(0)
+def main():
+    S, L = get_data_sample(DATA)
     show_clusters('Original clusters',S,L)
-    C = mean_shift(S, 2.1)
+    C = mean_shift(S, BANDWIDTH)
     title('Centroids found by Mean-Shift')
     for i,p in enumerate(S): scatter([p[0]],[p[1]],color=colour(L[i]),marker=marker(L[i]),s=25)
     for c in C: scatter([c[0]],[c[1]],color='k',marker='*',s=150)
     grid(True)
     show()
 
+main()
 
-def t1():
-    S, L = get_data_sample(1)
-    show_clusters('Original clusters',S,L)
-    C = mean_shift(S,1)
-    title('Centroids found by Mean-Shift')
-    for i,p in enumerate(S): scatter([p[0]],[p[1]],color=colour(L[i]),marker=marker(L[i]),s=25)
-    for c in C: scatter([c[0]],[c[1]],color='k',marker='*',s=150)
-    grid(True)
-    show()
-
-
-t0()
-t1()

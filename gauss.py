@@ -40,32 +40,32 @@ print("Data: ", S)
 print("point: ", b)
 
 def gaussian_centroid():
-	o=0
-	m=0
-	for q in S:
-		w = gaussian_kernel(b, q, h)
-		o += w
-		m += w*q[0]
+    o=0
+    m=0
+    for q in S:
+        w = gaussian_kernel(b, q, h)
+        o += w
+        m += w*q[0]
 
-	return(m/o)
+    return(m/o)
 
 def gaussian_centroidByAxis(p, axis_data):
-	o=0
-	m=0
-	for q in axis_data:
-		w = math.exp(-math.fabs(p-q)**2/h**2)
-		o += w
-		m += w*q
-	return m/o
+    o=0
+    m=0
+    for q in axis_data:
+        w = math.exp(-math.fabs(p-q)**2/h**2)
+        o += w
+        m += w*q
+    return m/o
 
 def main():
-	X = [s[0] for s in S]
-	Y = [s[1] for s in S]
+    X = [s[0] for s in S]
+    Y = [s[1] for s in S]
 
-	print (gaussian_centroidByAxis(b[0], X))
-	print (gaussian_centroidByAxis(b[1], Y))
+    print (gaussian_centroidByAxis(b[0], X))
+    print (gaussian_centroidByAxis(b[1], Y))
 
-	print(gaussian_centroid())
+    print(gaussian_centroid())
 
 main()
 
