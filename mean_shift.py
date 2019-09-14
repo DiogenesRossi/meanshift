@@ -32,19 +32,32 @@ def gaussian_kernel(p, q, r):
     return math.exp(-distance(p, q)**2/r**2)
 
 def calc_gaussian(p, S, h):
-    return sum([gaussian_kernel(p, q, h) for q in S])
+    o=0
+    m=0
+    for q in S:
+        w = gaussian_kernel(p, q, h)
+        o += w
+        m += w*q[0]
+    return m/o
+
+def gaussian_centroid_by_axis(p, axis_data, h):
+	o=0
+	m=0
+	for q in axis_data:
+		w = math.exp(-math.fabs(p-q)**2/h**2)
+		o += w
+		m += w*q
+	return m/o
+
 
 def centroid(p, r, S, kernelId):
     X = [s[0] for s in S]
     Y = [s[1] for s in S]
     euclidian_distance = (sum(X)/len(X), sum(Y)/len(Y))
-    gau=calc_gaussian(p, S, r)
+    gau=(gaussian_centroid_by_axis(p[0], X, r), gaussian_centroid_by_axis(p[1], Y, r))
     print (S, p, euclidian_distance, gau)
-    #input()
-    if kernelId==0:
-        return euclidian_distance
 
-    return euclidian_distance
+    return gau
     
  
 def get_data_sample(id):
@@ -98,4 +111,4 @@ def t1():
 
 
 t0()
-#t1()
+t1()

@@ -38,13 +38,36 @@ S=[(1,1), (2,2), (3,3), (9,9), (10,10), (11,11), (12,12)]
 h=1
 print("Data: ", S)
 print("point: ", b)
-o=0
-m=0
-for q in S:
-	w = gaussian_kernel(b, q, h)
-	o += w
-	m += w*q[0]
 
-print(m/o)
+def gaussian_centroid():
+	o=0
+	m=0
+	for q in S:
+		w = gaussian_kernel(b, q, h)
+		o += w
+		m += w*q[0]
+
+	return(m/o)
+
+def gaussian_centroidByAxis(p, axis_data):
+	o=0
+	m=0
+	for q in axis_data:
+		w = math.exp(-math.fabs(p-q)**2/h**2)
+		o += w
+		m += w*q
+	return m/o
+
+def main():
+	X = [s[0] for s in S]
+	Y = [s[1] for s in S]
+
+	print (gaussian_centroidByAxis(b[0], X))
+	print (gaussian_centroidByAxis(b[1], Y))
+
+	print(gaussian_centroid())
+
+main()
+
 
 
