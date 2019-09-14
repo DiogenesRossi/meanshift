@@ -36,8 +36,8 @@ def gaussian_kernel(p, q, r):
 b=(7,7)
 S=[(1,1), (2,2), (3,3), (9,9), (10,10), (11,11), (12,12)]
 h=1
-print "Data: ", S
-print "point: ", b
+print("Data: ", S)
+print("point: ", b)
 o=0
 m=0
 for q in S:
@@ -45,6 +45,6 @@ for q in S:
 	o += w
 	m += w*q[0]
 
-print m/o
+print(m/o)
 
 
