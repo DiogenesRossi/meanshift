@@ -18,7 +18,7 @@ BANDWIDTH = float(opt.bandwidth)
 
 #python mean_shift.py -d 0 -b 2.1 -k 0
 
-def mean_shift(S,r):
+def mean_shift_old(S,r):
     P = []
     C = S
     while P != C:
@@ -28,6 +28,45 @@ def mean_shift(S,r):
 
 def distance(p,q):
     return hypot(p[0]-q[0],p[1]-q[1])
+
+
+
+""" 
+   mean_shift(S,r) : Retorna um array com um centroid para cada ponto recebido por S, usando r como janela.
+   Paramentros:
+     S: array de pontos
+     r: janela
+"""
+def mean_shift(S,r):
+    C = S                 # C: armazena as centroids. Inicia com cada ponto sendo a sua propria centroid.
+    lastC = []            # lastC: armazena as centroid da iteração anterior. Inicializada vazia.
+
+    # Deve executar até que as centroids não sejam alteradas.
+    while lastC != C:     
+        lastC = C         # Guarda as centroids atuais para comparação futura. 
+        newC = []         # newC: ira armazenar as novas centroids. Util pois durante a iteração os arrays lastC e C não devem ser alterados.
+
+        # Itera em todas as centroids.
+        for cc in C:      # cc: centroid atual.
+
+            # recupera a lista de pontos pertencentes ao dataSet que estão a uma distancia menor ou igual a r a partir de uma centroid cc.
+            for pointsOnWindow in [[q for q in C if distance(cc,q)<=r]]:
+                c = centroid(cc, r, pointsOnWindow, KERNEL)   # determina a centroid a partir dos pontos pertencentes a janela.
+                newC.append(c)                         # armazena a centroid obtida
+                #print ("centroid: %s=>%s, pontos pertencentes a janela: %s"%(cc, c, pointsOnWindow))    # Util para debug
+        C = newC         # Fim da iteração, C pode ser atualizada.
+    print("C: ", C)
+    return  C
+
+# Gera um L a partir das centroids
+def buidL(C):
+    NL=C[:]
+    for idx, value in enumerate(sorted(set(C))):
+        for i, l in enumerate(NL):
+            if l==value:
+                NL[i]=idx
+    return NL
+
 
 # https://mccormickml.com/2013/08/15/the-gaussian-kernel/
 '''
@@ -106,11 +145,24 @@ def main():
     S, L = get_data_sample(DATA)
     show_clusters('Original clusters',S,L)
     C = mean_shift(S, BANDWIDTH)
+    L = buidL(C)
     title('Centroids found by Mean-Shift')
     for i,p in enumerate(S): scatter([p[0]],[p[1]],color=colour(L[i]),marker=marker(L[i]),s=25)
     for c in C: scatter([c[0]],[c[1]],color='k',marker='*',s=150)
     grid(True)
     show()
 
-main()
+def base():
+    S, L = make_circles(50,0)
+    show_clusters('Original clusters',S,L)
+
+    C = mean_shift(S, BANDWIDTH)
+    L = buidL(C)
+    for i,p in enumerate(S): scatter([p[0]],[p[1]],color=colour(L[i]),marker=marker(L[i]),s=25)
+    for c in C: scatter([c[0]],[c[1]],color='k',marker='*',s=150)
+    grid(True)
+    show()
+
+
+base()
 
